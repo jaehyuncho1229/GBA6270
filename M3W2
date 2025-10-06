@@ -1,0 +1,207 @@
+Step 5: Create Baseline Configuration Files on VM1
+Create the following baseline files that define your security standards:
+File 1: SSH Security Baseline
+nano ~/network-auditor/baselines/ssh_baseline.yaml
+File content:
+# SSH Security Baseline Configuration
+ssh_config:
+  PermitRootLogin: "no"
+  PasswordAuthentication: "yes"
+  PubkeyAuthentication: "yes"
+  PermitEmptyPasswords: "no"
+  X11Forwarding: "no"
+  MaxAuthTries: 3
+  Port: 22
+  Protocol: 2
+
+compliance_rules:
+  - rule: "Root login must be disabled"
+    parameter: "PermitRootLogin"
+    expected: "no"
+    severity: "critical"
+  
+  - rule: "Empty passwords must be prohibited"
+    parameter: "PermitEmptyPasswords"
+    expected: "no"
+    severity: "critical"
+  
+  - rule: "Max authentication tries should be 3 or less"
+    parameter: "MaxAuthTries"
+    expected: "3"
+    severity: "warning"
+File 2: Firewall Security Baseline
+nano ~/network-auditor/baselines/firewall_baseline.yaml
+File content:
+# Firewall Security Baseline Configuration
+required_rules:
+  - port: 22
+    protocol: tcp
+    action: ACCEPT
+    description: "SSH access must be allowed"
+    severity: "critical"
+  
+  - port: 443
+    protocol: tcp
+    action: ACCEPT
+    description: "HTTPS should be allowed"
+    severity: "warning"
+
+blocked_rules:
+  - port: 23
+    protocol: tcp
+    action: DROP
+    description: "Telnet must be blocked"
+    severity: "critical"
+  
+  - port: 21
+    protocol: tcp
+    action: DROP
+    description: "FTP should be blocked"
+    severity: "warning"
+
+default_policy:
+  INPUT: DROP
+  FORWARD: DROP
+  OUTPUT: ACCEPT
+File 3: User Account Security Baseline
+nano ~/network-auditor/baselines/users_baseline.yaml
+File content:
+# User Account Security Baseline
+required_users:
+  - username: audituser
+    description: "Audit account must exist"
+    severity: "critical"
+
+prohibited_users:
+  - username: guest
+    description: "Guest account should not exist"
+    severity: "warning"
+  
+  - username: test
+    description: "Test accounts should be removed"
+    severity: "warning"
+
+password_policy:
+  max_days: 90
+  min_days: 1
+  warn_age: 7
+Expected Result: Three baseline YAML files created in ~/network-auditor/baselines/
+________________________________________
+Step 6: Create Device Inventory File on VM1
+nano ~/network-auditor/device_inventory.yaml
+Paste this content (IMPORTANT: Replace IP addresses with your actual VM IPs):
+devices:
+  - hostname: "device-01"
+    ip: "192.168.1.101"  # Replace with your VM2 IP
+    username: "audituser"
+    password: "AuditPass123"
+    description: "Network Device 1"
+  
+  - hostname: "device-02"
+    ip: "192.168.1.102"  # Replace with your VM3 IP
+    username: "audituser"
+    password: "AuditPass123"
+    description: "Network Device 2"
+Expected Result: Inventory file created at ~/network-auditor/device_inventory.yaml
+________________________________________
+Step 7: Verify Your Setup
+Before proceeding, verify your setup:
+cd ~/network-auditor
+
+# Check directory structure
+ls -la
+
+# Expected output should show:
+# - baselines/ directory with 3 YAML files
+# - device_inventory.yaml file
+# - configs/ and reports/ directories
+# - venv/ directory
+
+# Verify baseline files
+ls baselines/
+# Expected: firewall_baseline.yaml  ssh_baseline.yaml  users_baseline.yaml
+
+# Test virtual environment
+source venv/bin/activate
+pip list | grep paramiko
+# Should show paramiko installed
+________________________________________
+Step 8: Introduce Configuration Violations
+Your Assignment Task:
+Now it's time to intentionally introduce security violations on VM2 and VM3. This simulates real-world configuration drift scenarios.
+Requirements:
+1.	Create at least 3 different types of violations on each VM (total 6+ violations, you may choose the violation type)
+2.	Violations must be detectable by the baseline rules you created
+3.	Mix critical and warning severity violations
+4.	Document what violations you introduced
+Suggested Violations to Consider:
+SSH Configuration Violations (on VM2 or VM3):
+# Example: Enable root login (CRITICAL violation)
+sudo sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+sudo systemctl restart ssh
+
+# Example: Allow empty passwords (CRITICAL violation)
+sudo sed -i 's/^#\?PermitEmptyPasswords.*/PermitEmptyPasswords yes/' /etc/ssh/sshd_config
+sudo systemctl restart ssh
+
+# Example: Increase max auth tries (WARNING violation)
+sudo sed -i 's/^#\?MaxAuthTries.*/MaxAuthTries 10/' /etc/ssh/sshd_config
+sudo systemctl restart ssh
+User Account Violations (on VM2 or VM3):
+# Example: Create prohibited user accounts
+sudo useradd -m guest
+sudo useradd -m test
+sudo useradd -m testadmin
+Firewall Violations (on VM2 or VM3):
+# Install firewall if not present (ufw is the required firewall for this assignment)
+sudo apt install ufw -y
+
+# Example: Allow insecure protocols
+sudo ufw allow 23/tcp  # Telnet (CRITICAL violation)
+sudo ufw allow 21/tcp  # FTP (WARNING violation)
+sudo ufw --force enable
+Create a text file ~/network-auditor/violations_introduced.txt that documents:
+•	Which VM you modified (VM2 or VM3 or both)
+•	What specific violations you introduced
+•	Why each violation is a security risk
+Example format:
+VM2 Violations:
+1. Enabled PermitRootLogin - Allows direct root access (Critical Risk)
+2. Created 'guest' user account - Unauthorized account (Warning)
+3. Allowed Telnet port 23 - Unencrypted protocol (Critical Risk)
+
+VM3 Violations:
+1. Set MaxAuthTries to 10 - Allows brute force attempts (Warning)
+2. Created 'test' user account - Development account in production (Warning)
+3. Enabled X11Forwarding - Unnecessary service enabled (Warning)
+________________________________________
+Step 9: Build the Auditor Script with GenAI Assistance
+GenAI-Assisted Development Task
+Instead of providing you the complete script, you will use Generative AI tools (ChatGPT, Claude, GitHub Copilot, etc.) to help you build the auditor script. This is an important skill for modern developers.
+Your Challenge:
+Create a Python script called ~/network-auditor/auditor.py that performs the following functions:
+Core Requirements:
+1.	Load Device Inventory - Read devices from device_inventory.yaml
+2.	SSH Connection Module - Connect to each device using paramiko
+3.	Configuration Extraction: 
+o	Extract SSH configuration from /etc/ssh/sshd_config
+o	Extract user accounts from /etc/passwd
+o	Extract firewall rules using sudo ufw status numbered
+4.	Baseline Comparison: 
+o	Load baseline YAML files
+o	Compare extracted configs against baseline rules
+o	Identify violations with severity levels
+5.	Security Score Calculation: 
+o	Calculate score (0-100) based on violations. Start with 100 as the baseline. We do not need complex logic for this as of now since we are creating a limited number of violations.
+o	Critical violations: -15 points each
+o	Warning violations: -5 points each
+6.	Report Generation: 
+o	Display violations grouped by severity
+o	Show expected vs actual values
+o	Provide remediation recommendations
+o	Save detailed JSON report to reports/ directory
+How to Use GenAI Effectively:
+Make use of your group to brainstorm prompts! You may break down the problem for a modular approach if required. Inform the Gen AI tool about your objectives and folder structure…
+Important Guidelines:
+1.	Understand the Code: Don't just copy-paste. Make sure you understand what each part does
+2.	Use Virtual Environment: Always run source venv/bin/activate before testing
