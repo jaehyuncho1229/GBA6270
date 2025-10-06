@@ -1,0 +1,55 @@
+VM2 Violations (4 total)
+Violation 1: Enable Root Login (CRITICAL)
+bashsudo sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+sudo systemctl restart ssh
+Violation 2: Allow Empty Passwords (CRITICAL)
+bashsudo sed -i 's/^#\?PermitEmptyPasswords.*/PermitEmptyPasswords yes/' /etc/ssh/sshd_config
+sudo systemctl restart ssh
+Violation 3: Create 'guest' User Account (WARNING)
+bashsudo useradd -m guest
+Violation 4: Allow Telnet Port 23 (CRITICAL)
+bashsudo apt install ufw -y
+sudo ufw allow 23/tcp
+sudo ufw --force enable
+
+VM3 Violations (4 total)
+Violation 1: Increase Max Auth Tries (WARNING)
+bashsudo sed -i 's/^#\?MaxAuthTries.*/MaxAuthTries 10/' /etc/ssh/sshd_config
+sudo systemctl restart ssh
+Violation 2: Create 'test' User Account (WARNING)
+bashsudo useradd -m test
+Violation 3: Create 'testadmin' User Account (WARNING)
+bashsudo useradd -m testadmin
+Violation 4: Allow FTP Port 21 (WARNING)
+bashsudo apt install ufw -y
+sudo ufw allow 21/tcp
+sudo ufw --force enable
+
+Quick Setup Script Format
+If you want to run all violations at once, you can copy-paste these:
+On VM2:
+bash# SSH violations
+sudo sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+sudo sed -i 's/^#\?PermitEmptyPasswords.*/PermitEmptyPasswords yes/' /etc/ssh/sshd_config
+sudo systemctl restart ssh
+
+# User violation
+sudo useradd -m guest
+
+# Firewall violation
+sudo apt install ufw -y
+sudo ufw allow 23/tcp
+sudo ufw --force enable
+On VM3:
+bash# SSH violation
+sudo sed -i 's/^#\?MaxAuthTries.*/MaxAuthTries 10/' /etc/ssh/sshd_config
+sudo systemctl restart ssh
+
+# User violations
+sudo useradd -m test
+sudo useradd -m testadmin
+
+# Firewall violation
+sudo apt install ufw -y
+sudo ufw allow 21/tcp
+sudo ufw --force enable
