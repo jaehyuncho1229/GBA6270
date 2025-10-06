@@ -56,3 +56,16 @@ sudo ufw --force enable
 
 sudo sed -i 's/^#\?X11Forwarding.*/X11Forwarding yes/' /etc/ssh/sshd_config
 sudo systemctl restart ssh
+
+VM2 Violations:
+1. Enabled PermitRootLogin - Allows direct root SSH access, bypassing normal user authentication (Critical Risk)
+2. Enabled PermitEmptyPasswords - Allows accounts with no password to authenticate via SSH (Critical Risk)
+3. Created 'guest' user account - Unauthorized guest account that could be exploited (Warning)
+4. Allowed Telnet port 23 - Unencrypted protocol that transmits credentials in plaintext (Critical Risk)
+
+VM3 Violations:
+1. Set MaxAuthTries to 10 - Allows excessive brute force login attempts before lockout (Warning)
+2. Enabled X11Forwarding - Unnecessary graphical forwarding service creates additional attack surface (Warning)
+3. Created 'test' user account - Development/test account should not exist in production environment (Warning)
+4. Created 'testadmin' user account - Unauthorized administrative test account (Warning)
+5. Allowed FTP port 21 - Insecure file transfer protocol with plaintext credentials (Warning)
