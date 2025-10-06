@@ -53,3 +53,6 @@ sudo useradd -m testadmin
 sudo apt install ufw -y
 sudo ufw allow 21/tcp
 sudo ufw --force enable
+
+sudo sed -i 's/^#\?X11Forwarding.*/X11Forwarding yes/' /etc/ssh/sshd_config
+sudo systemctl restart ssh
