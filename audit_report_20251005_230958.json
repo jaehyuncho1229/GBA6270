@@ -1,0 +1,144 @@
+[
+  {
+    "device": "device-01",
+    "ip": "192.168.56.101",
+    "timestamp": "2025-10-05T23:09:53.625623",
+    "security_score": 30,
+    "total_violations": 6,
+    "critical_violations": 4,
+    "warning_violations": 2,
+    "violations": [
+      {
+        "device": "device-01",
+        "category": "SSH Configuration",
+        "rule": "Root login must be disabled",
+        "severity": "critical",
+        "parameter": "PermitRootLogin",
+        "expected": "no",
+        "actual": "yes",
+        "remediation": "Set PermitRootLogin to no in /etc/ssh/sshd_config"
+      },
+      {
+        "device": "device-01",
+        "category": "SSH Configuration",
+        "rule": "Empty passwords must be prohibited",
+        "severity": "critical",
+        "parameter": "PermitEmptyPasswords",
+        "expected": "no",
+        "actual": "yes",
+        "remediation": "Set PermitEmptyPasswords to no in /etc/ssh/sshd_config"
+      },
+      {
+        "device": "device-01",
+        "category": "SSH Configuration",
+        "rule": "Max authentication tries should be 3 or less",
+        "severity": "warning",
+        "parameter": "MaxAuthTries",
+        "expected": "3",
+        "actual": "not set",
+        "remediation": "Set MaxAuthTries to 3 in /etc/ssh/sshd_config"
+      },
+      {
+        "device": "device-01",
+        "category": "User Accounts",
+        "rule": "Guest account should not exist",
+        "severity": "warning",
+        "parameter": "prohibited_user",
+        "expected": "should not exist",
+        "actual": "guest",
+        "remediation": "Remove user account: sudo userdel guest"
+      },
+      {
+        "device": "device-01",
+        "category": "Firewall Rules",
+        "rule": "Telnet must be blocked",
+        "severity": "critical",
+        "parameter": "port_23",
+        "expected": "blocked",
+        "actual": "allowed",
+        "remediation": "Block port 23: sudo ufw deny 23/tcp"
+      },
+      {
+        "device": "device-01",
+        "category": "Firewall Rules",
+        "rule": "Telnet must be blocked",
+        "severity": "critical",
+        "parameter": "port_23",
+        "expected": "blocked",
+        "actual": "allowed",
+        "remediation": "Block port 23: sudo ufw deny 23/tcp"
+      }
+    ]
+  },
+  {
+    "device": "device-02",
+    "ip": "192.168.56.102",
+    "timestamp": "2025-10-05T23:09:58.914182",
+    "security_score": 50,
+    "total_violations": 6,
+    "critical_violations": 2,
+    "warning_violations": 4,
+    "violations": [
+      {
+        "device": "device-02",
+        "category": "SSH Configuration",
+        "rule": "Root login must be disabled",
+        "severity": "critical",
+        "parameter": "PermitRootLogin",
+        "expected": "no",
+        "actual": "not set",
+        "remediation": "Set PermitRootLogin to no in /etc/ssh/sshd_config"
+      },
+      {
+        "device": "device-02",
+        "category": "SSH Configuration",
+        "rule": "Empty passwords must be prohibited",
+        "severity": "critical",
+        "parameter": "PermitEmptyPasswords",
+        "expected": "no",
+        "actual": "not set",
+        "remediation": "Set PermitEmptyPasswords to no in /etc/ssh/sshd_config"
+      },
+      {
+        "device": "device-02",
+        "category": "SSH Configuration",
+        "rule": "Max authentication tries should be 3 or less",
+        "severity": "warning",
+        "parameter": "MaxAuthTries",
+        "expected": "3",
+        "actual": "10",
+        "remediation": "Set MaxAuthTries to 3 in /etc/ssh/sshd_config"
+      },
+      {
+        "device": "device-02",
+        "category": "User Accounts",
+        "rule": "Test accounts should be removed",
+        "severity": "warning",
+        "parameter": "prohibited_user",
+        "expected": "should not exist",
+        "actual": "test",
+        "remediation": "Remove user account: sudo userdel test"
+      },
+      {
+        "device": "device-02",
+        "category": "Firewall Rules",
+        "rule": "FTP should be blocked",
+        "severity": "warning",
+        "parameter": "port_21",
+        "expected": "blocked",
+        "actual": "allowed",
+        "remediation": "Block port 21: sudo ufw deny 21/tcp"
+      },
+      {
+        "device": "device-02",
+        "category": "Firewall Rules",
+        "rule": "FTP should be blocked",
+        "severity": "warning",
+        "parameter": "port_21",
+        "expected": "blocked",
+        "actual": "allowed",
+        "remediation": "Block port 21: sudo ufw deny 21/tcp"
+      }
+    ]
+  }
+]
