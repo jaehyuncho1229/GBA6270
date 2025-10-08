@@ -27,17 +27,21 @@
 #######################################################################################
 # 1. Import libraries for API requests, JSON formatting, parsing URLs into components, and epoch time conversion.
 
-<!!!REPLACEME with code for libraries>
+import requests
+import json
+import urllib.parse
+import time
 
 # 2. Complete the if statement to ask the user for the Webex access token.
 choice = input("Do you wish to use the hard-coded Webex token? (y/n) ")
 
-<!!!REPLACEME with if statements to ask user for the Webex Access Token!!!>
+if choice == "N" or choice == "n":
+    accessToken = "Bearer " + input("Enter your Webex access token: ")
 else:
-    accessToken = "Bearer <!!!REPLACEME with hard-coded token!!!>"
+    accessToken = "Bearer NjZiNDY3ZTEtOGJlZC00YTA0LTg1MTYtNTZhZmU4MDVlZWUzM2NjZjAzYWUtNzdi_P0A1_13494cac-24b4-4f89-8247-193cc92a7636"
 
 # 3. Provide the URL to the Webex room API.
-r = requests.get(   "<!!!REPLACEME with URL!!!>",
+r = requests.get(   "https://webexapis.com/v1/rooms",
                     headers = {"Authorization": accessToken}
                 )
 
@@ -51,7 +55,7 @@ if not r.status_code == 200:
 print("\nList of available rooms:")
 rooms = r.json()["items"]
 for room in rooms:
-    <!!!REPLACEME with print code to finish the loop>
+    print("Type: '" + room["type"] + "' Name: " + room["title"])
 
 #######################################################################################
 # SEARCH FOR WEBEX ROOM TO MONITOR
@@ -92,7 +96,7 @@ while True:
                             "max": 1
                     }
 # 5. Provide the URL to the Webex messages API.    
-    r = requests.get("<!!!REPLACEME with URL!!!>", 
+    r = requests.get("https://webexapis.com/v1/messages", 
                          params = GetParameters, 
                          headers = {"Authorization": accessToken}
                     )
@@ -121,7 +125,7 @@ while True:
         time.sleep(seconds)     
     
 # 6. Provide the URL to the ISS Current Location API.         
-        r = requests.get("<!!!REPLACEME with URL!!!>")
+        r = requests.get("http://api.open-notify.org/iss-now.json")
         
         json_data = r.json()
         
@@ -130,21 +134,21 @@ while True:
 
 # 7. Record the ISS GPS coordinates and timestamp.
 
-        lat = json_data["<!!!REPLACEME!!!> with path to latitude key!!!>"]
-        lng = json_data["<!!!REPLACEME!!!> with path to longitude key!!!>"]
-        timestamp = json_data["<!!!REPLACEME!!!> with path to timestamp key!!!>"]
+        lat = json_data["iss_position"]["latitude"]
+        lng = json_data["iss_position"]["longitude"]
+        timestamp = json_data["timestamp"]
         
 # 8. Convert the timestamp epoch value to a human readable date and time.
         # Use the time.ctime function to convert the timestamp to a human readable date and time.
-        timeString = <!!!REPLACEME with conversion code!!!>       
+        timeString = time.ctime(timestamp)     
    
 # 9. Provide your Graphhopper API consumer key.
     
-        key = "<!!!RREPLACEME with your Graphhopper API key>"
+        key = "813197c3-1b03-4bdb-88e6-4c2e7cf2cd98"
 
 # 10. Provide the URL to the Graphhopper GeoCoding API.
     # Get location information using the Graphhopper GeoCoding API service using the HTTP GET method
-        GeoURL = "<!!! REPLACEME with Graphhopper GeoCoding API URL>"
+        GeoURL = "https://graphhopper.com/api/1/geocode?"
 
         loc="&point="+lat+","+lng
         url = GeoURL + urllib.parse.urlencode({"key":key, "reverse":"true"}) + loc
@@ -158,16 +162,16 @@ while True:
 
 # 11. Store the location received from the Graphhopper.
         if len(json_data["hits"]) != 0:
-            CountryResult = json_data["<!!!REPLACEME!!!> with path to country key!!!>"]
-            NameResult = json_data["<!!!REPLACEME!!!> with path to name key!!!>"]
-            If "state" in json_data["hits"][0]:
-                StateResult = json_data["<!!!REPLACEME!!!> with path to state key!!!>"]
-            If "city" in json_data["hits"][0]:
-                CityResult = json_data["<!!!REPLACEME!!!> with path to city key!!!>"]
-            If "street" in json_data["hits"][0]:
-                StreetResult = json_data["<!!!REPLACEME!!!> with path to street key!!!>"]
-            If "housenumber" in json_data["hits"][0]:
-                HouseResult = json_data["<!!!REPLACEME!!!> with path to housenumber key!!!>"]
+            CountryResult = json_data["hits"][0]["country"]
+            NameResult = json_data["hits"][0]["name"]
+            if "state" in json_data["hits"][0]:
+                StateResult = json_data["hits"][0]["state"]
+            if "city" in json_data["hits"][0]:
+                CityResult = json_data["hits"][0]["city"]
+            if "street" in json_data["hits"][0]:
+                StreetResult = json_data["hits"][0]["street"]
+            if "housenumber" in json_data["hits"][0]:
+                HouseResult = json_data["hits"][0]["housenumber"]
 
 # 12. Complete the code to format the response message.
 #     Example responseMessage result: On Tue Mar 12 00:16:04 2024 (GMT), the ISS was flying over Mobert Creek, Canada. (47.4917°, -37.3643°)
@@ -175,10 +179,14 @@ while True:
 
         if len(json_data["hits"]) == 0:
             responseMessage = "On {} (GMT), the ISS was flying over a body of water or unpopulated area at latitude {}° and longitude {}°.".format(timeString, lat, lng)
-
-<!!!REPLACEME with if statements to compose the message to display the current ISS location in the Webex Team room!!!>
-        else
-        elif
+        elif "street" in json_data["hits"][0] and "city" in json_data["hits"][0]:
+            responseMessage = "On {} (GMT), the ISS was flying over {} in {}, {}. ({}°, {}°)".format(timeString, StreetResult, CityResult, CountryResult, lat, lng)
+        elif "city" in json_data["hits"][0]:
+            responseMessage = "On {} (GMT), the ISS was flying over {}, {}. ({}°, {}°)".format(timeString, CityResult, CountryResult, lat, lng)
+        elif "name" in json_data["hits"][0]:
+            responseMessage = "On {} (GMT), the ISS was flying over {} in {}. ({}°, {}°)".format(timeString, NameResult, CountryResult, lat, lng)
+        else:
+            responseMessage = "On {} (GMT), the ISS was flying over {}. ({}°, {}°)".format(timeString, CountryResult, lat, lng)
        
         # print the response message
         print("Sending to Webex: " +responseMessage)
@@ -186,18 +194,18 @@ while True:
 # 13. Complete the code to post the message to the Webex room.         
         # the Webex HTTP headers, including the Authoriztion and Content-Type
         HTTPHeaders = { 
-                             "Authorization": <!!!REPLACEME!!!>,
+                             "Authorization": accessToken,
                              "Content-Type": "application/json"
                            }
         
         PostData = {
-                            "roomId": <!!!REPLACEME!!!>,
-                            "text": <!!!REPLACEME!!!>
+                            "roomId": roomIdToGetMessages,
+                            "text": responseMessage
                         }
         # Post the call to the Webex message API.
-        r = requests.post( "<!!!REPLACEME with URL!!!>", 
-                              data = json.dumps(<!!!REPLACEME!!!>), 
-                              headers = <!!!REPLACEME!!!>
+        r = requests.post( "https://webexapis.com/v1/messages", 
+                              data = json.dumps(PostData), 
+                              headers = HTTPHeaders
                          )
         if not r.status_code == 200:
             raise Exception("Incorrect reply from Webex API. Status code: {}. Text: {}".format(r.status_code, r.text))
