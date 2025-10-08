@@ -38,7 +38,7 @@ choice = input("Do you wish to use the hard-coded Webex token? (y/n) ")
 if choice == "N" or choice == "n":
     accessToken = "Bearer " + input("Enter your Webex access token: ")
 else:
-    accessToken = "Bearer ZjZkYjllYjgtMGNjYy00YTg4LWFiYTMtMThhYmZiYjU2MjZiMjgxYzE2NGEtNjIy_P0A1_13494cac-24b4-4f89-8247-193cc92a7636"
+    accessToken = "ZjZkYjllYjgtMGNjYy00YTg4LWFiYTMtMThhYmZiYjU2MjZiMjgxYzE2NGEtNjIy_P0A1_13494cac-24b4-4f89-8247-193cc92a7636"
 
 # 3. Provide the URL to the Webex room API.
 r = requests.get(   "https://webexapis.com/v1/rooms",
@@ -209,4 +209,5 @@ while True:
                          )
         if not r.status_code == 200:
             raise Exception("Incorrect reply from Webex API. Status code: {}. Text: {}".format(r.status_code, r.text))
+
 
