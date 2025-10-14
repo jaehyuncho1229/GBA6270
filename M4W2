@@ -204,3 +204,13 @@ curl -X POST http://localhost:5001/ \
     </calc:multiply>
   </soap:Body>
 </soap:Envelope>'
+
+
+curl -X POST http://localhost:5000/add \
+  -H "Content-Type: application/json" \
+  -d '{"a": 10, "b": 5}'
+
+
+curl -X POST http://localhost:5002/ \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "method": "add", "params": [10, 5], "id": 1}'
