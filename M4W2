@@ -174,3 +174,9 @@ curl -X POST http://localhost:5002/ \
   -d '{"jsonrpc": "2.0", "method": "divide", "params": [10, 5], "id": 1}'
 Question: How does each API handle errors? Which provides the most useful error messages?
 
+curl -X POST http://localhost:5000/add \
+  -H "Content-Type: application/json" \
+  -d '{"a": 25, "b": 30}'
+curl -X POST http://localhost:5000/multiply \
+  -H "Content-Type: application/json" \
+  -d '{"a": 9, "b": 4}'
