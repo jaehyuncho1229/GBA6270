@@ -1,0 +1,176 @@
+Understanding API Architectures: REST, SOAP, and RPC
+________________________________________
+Overview
+In this assignment, you will learn about three different API architectural styles by interacting with them directly. You will run a simple server that provides the same mathematical operations (add and multiply) through three different API styles: REST, SOAP, and JSON-RPC.
+Learning Objectives:
+•	Understand how REST, SOAP, and RPC APIs differ in structure and approach
+•	Learn how to make API calls using curl
+•	Compare the advantages and disadvantages of each API style
+•	Recognize when each style is most appropriate
+Prerequisites:
+•	Ubuntu VM
+________________________________________
+Part 1: Setup
+Step 1: Install Required Software
+1.	Create a Python virtual environment and activate it.
+2.	After activating the virtual environment, Run: pip3 install flask  
+Step 2: Save the Python Script
+You have been provided with a file called all_three_apis.py. Save this file to a directory on your Ubuntu VM (for example, in your home directory or a python folder).
+ 
+Step 3: Run the Server
+Navigate to the directory where you saved the script and run:
+python3 all_three_apis.py
+You should see output like the following:
+============================================================
+Starting All Three API Servers...
+============================================================
+
+1. REST API:     http://localhost:5000
+2. SOAP API:     http://localhost:5001
+3. JSON-RPC API: http://localhost:5002
+
+Press Ctrl+C to stop all servers
+
+============================================================
+Important: Keep this terminal window open! The servers need to keep running. Open a NEW terminal window for the next steps.  
+Step 4: Verify the Servers are Running
+In your NEW terminal window, test that the servers are responding:
+curl http://localhost:5000/
+If you see a JSON response, you're ready to proceed!
+ 
+________________________________________
+Part 2: REST API Exploration
+What is REST?
+REST (Representational State Transfer) is an architectural style that uses HTTP methods and URLs to represent resources. It's the most common API style used on the web today. REST APIs typically use JSON for data exchange.
+Key Characteristics:
+•	Uses standard HTTP methods (GET, POST, PUT, DELETE)
+•	Resources are identified by URLs
+•	Stateless (each request is independent)
+•	Lightweight data format (usually JSON)
+Exercise 2.1: View Available Endpoints
+curl http://localhost:5000/
+ 
+
+Question 2.1a: What format is the response in? JSON (JavaScript Object Notation) formart
+Question 2.1b: What endpoints are listed as available? “POST /add” and “POST /multiply”
+Exercise 2.2: Call the Add Operation
+curl -X POST http://localhost:5000/add \
+  -H "Content-Type: application/json" \
+  -d '{"a": 10, "b": 5}'
+Expected Output: {"result": 15}
+Questions:
+•	What HTTP method is being used (look at -X POST)?
+•	How are the parameters passed to the server?
+•	What is the format of the request body?
+Exercise 2.3: Call the Multiply Operation
+curl -X POST http://localhost:5000/multiply \
+  -H "Content-Type: application/json" \
+  -d '{"a": 7, "b": 6}'
+Expected Output: {"result": 42}
+Exercise 2.4: Try Your Own Numbers
+________________________________________
+Part 3: SOAP API Exploration
+What is SOAP?
+SOAP (Simple Object Access Protocol) is a protocol that uses XML for message format. It's commonly used in enterprise environments and has strict standards for message structure.
+Key Characteristics:
+•	XML-based messaging
+•	Formal service description (WSDL)
+•	Envelope structure (header + body)
+•	Often used in banking, finance, and enterprise systems
+Exercise 3.1: View the WSDL
+WSDL (Web Services Description Language) is a formal description of what the service provides.
+curl http://localhost:5001/?wsdl
+You'll see a long XML document. Don't worry about understanding all of it!
+Questions:
+•	3.1a: What format is the WSDL document in?
+•	3.1b: Can you find where the add operation is defined? (Look for <operation name="add">)
+•	3.1c: Can you find where the multiply operation is defined?
+Exercise 3.2: Call the Add Operation
+curl -X POST http://localhost:5001/ \
+  -H "Content-Type: text/xml" \
+  -d '<?xml version="1.0"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:calc="http://calculator.example.com/">
+  <soap:Body>
+    <calc:add>
+      <calc:a>10</calc:a>
+      <calc:b>5</calc:b>
+    </calc:add>
+  </soap:Body>
+</soap:Envelope>'
+Expected Output: XML response containing <calc:result>15</calc:result>
+Questions:
+•	Compare the length of this request to the REST request. Which is longer?
+•	What is the purpose of the <soap:Envelope> and <soap:Body> tags?
+Exercise 3.3: Call the Multiply Operation
+curl -X POST http://localhost:5001/ \
+  -H "Content-Type: text/xml" \
+  -d '<?xml version="1.0"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:calc="http://calculator.example.com/">
+  <soap:Body>
+    <calc:multiply>
+      <calc:a>7</calc:a>
+      <calc:b>6</calc:b>
+    </calc:multiply>
+  </soap:Body>
+</soap:Envelope>'
+Expected Output: XML response containing <calc:result>42</calc:result>
+Exercise 3.4: Try Your Own Numbers
+Modify the XML to use your own numbers for both add and multiply operations:
+________________________________________
+Part 4: JSON-RPC API Exploration (15 minutes)
+What is RPC?
+RPC (Remote Procedure Call) treats API calls as if you're calling functions on a remote server. JSON-RPC is a lightweight RPC protocol that uses JSON.
+Key Characteristics:
+•	Function/method-oriented (not resource-oriented like REST)
+•	All requests go to the same endpoint
+•	Method name is specified in the request body
+•	Uses JSON format
+•	Simple and lightweight
+Exercise 4.1: View API Information
+curl http://localhost:5002/
+You'll see an HTML page describing the JSON-RPC format.
+Exercise 4.2: Call the Add Operation
+curl -X POST http://localhost:5002/ \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "method": "add", "params": [10, 5], "id": 1}'
+Expected Output: {"jsonrpc": "2.0", "result": 15, "id": 1}
+Exercise 4.3: Call the Multiply Operation
+curl -X POST http://localhost:5002/ \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "method": "multiply", "params": [7, 6], "id": 2}'
+Expected Output: {"jsonrpc": "2.0", "result": 42, "id": 2}
+Exercise 4.4: Compare JSON-RPC to REST
+Look at the JSON-RPC request and a REST request side by side.
+REST:
+POST /add
+{"a": 10, "b": 5}
+JSON-RPC:
+POST /
+{"method": "add", "params": [10, 5]}
+Questions:
+•	4.4a: What's the main difference in how the operation is specified?
+•	4.4b: Which one uses the URL to indicate the operation?
+•	4.4c: Which one uses the request body to indicate the operation?
+Exercise 4.5: Try Your Own Numbers
+Call both operations with your own numbers:
+________________________________________
+Part 6: Advanced Exploration (Optional - Bonus)
+Bonus Exercise 1: Error Handling
+Try sending invalid requests to each API and observe the error responses.
+REST - Missing parameter:
+curl -X POST http://localhost:5000/add \
+  -H "Content-Type: application/json" \
+  -d '{"a": 10}'
+SOAP - Invalid XML:
+curl -X POST http://localhost:5001/ \
+  -H "Content-Type: text/xml" \
+  -d '<?xml version="1.0"?>
+<soap:Envelope>
+  <InvalidTag>
+</soap:Envelope>'
+JSON-RPC - Unknown method:
+curl -X POST http://localhost:5002/ \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "method": "divide", "params": [10, 5], "id": 1}'
+Question: How does each API handle errors? Which provides the most useful error messages?
+
