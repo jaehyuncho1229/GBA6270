@@ -226,3 +226,29 @@ Multiply operation with your own numbers:
 bashcurl -X POST http://localhost:5002/ \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc": "2.0", "method": "multiply", "params": [9, 11], "id": 2}'
+-------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
+Bonus Exercise 1: Error Handling
+Test 1: REST - Missing Parameter
+Run this command (missing the "b" parameter):
+bashcurl -X POST http://localhost:5000/add \
+  -H "Content-Type: application/json" \
+  -d '{"a": 10}'
+What to look for: How does REST tell you something is wrong?
+
+Test 2: SOAP - Invalid XML
+Run this command (malformed XML):
+bashcurl -X POST http://localhost:5001/ \
+  -H "Content-Type: text/xml" \
+  -d '<?xml version="1.0"?>
+<soap:Envelope>
+  <InvalidTag>
+</soap:Envelope>'
+What to look for: How does SOAP report XML errors?
+
+Test 3: JSON-RPC - Unknown Method
+Run this command (calling a method that doesn't exist):
+bashcurl -X POST http://localhost:5002/ \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "method": "divide", "params": [10, 5], "id": 1}'
+What to look for: How does JSON-RPC report an invalid method?
