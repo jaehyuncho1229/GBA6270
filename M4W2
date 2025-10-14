@@ -214,3 +214,15 @@ curl -X POST http://localhost:5000/add \
 curl -X POST http://localhost:5002/ \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc": "2.0", "method": "add", "params": [10, 5], "id": 1}'
+
+
+Add operation with your own numbers:
+bashcurl -X POST http://localhost:5002/ \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "method": "add", "params": [50, 25], "id": 1}'
+Change the numbers: [50, 25] ← Put any two numbers you want here!
+
+Multiply operation with your own numbers:
+bashcurl -X POST http://localhost:5002/ \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "method": "multiply", "params": [9, 11], "id": 2}'
