@@ -180,3 +180,27 @@ curl -X POST http://localhost:5000/add \
 curl -X POST http://localhost:5000/multiply \
   -H "Content-Type: application/json" \
   -d '{"a": 9, "b": 4}'
+
+curl -X POST http://localhost:5001/ \
+  -H "Content-Type: text/xml" \
+  -d '<?xml version="1.0"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:calc="http://calculator.example.com/">
+  <soap:Body>
+    <calc:add>
+      <calc:a>20</calc:a>
+      <calc:b>35</calc:b>
+    </calc:add>
+  </soap:Body>
+</soap:Envelope>'
+
+curl -X POST http://localhost:5001/ \
+  -H "Content-Type: text/xml" \
+  -d '<?xml version="1.0"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:calc="http://calculator.example.com/">
+  <soap:Body>
+    <calc:multiply>
+      <calc:a>15</calc:a>
+      <calc:b>4</calc:b>
+    </calc:multiply>
+  </soap:Body>
+</soap:Envelope>'
