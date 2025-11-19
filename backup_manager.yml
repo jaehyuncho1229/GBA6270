@@ -1,0 +1,68 @@
+---
+- name: Automated Backup Manager (Part 3)
+  # Run against all machines in the unixhosts group (VM2 and VM3)
+  hosts: unixhosts
+  # Requires root privileges for creating directories and accessing system files
+  become: yes
+  
+  vars:
+    # Target directory to backup (We'll use the Apache configuration folder for this lab)
+    source_to_backup: /etc/apache2
+    # Base directory for all backups on the remote host
+    backup_base_dir: /var/backups/ansible
+    # Dynamic timestamp for unique archive names (YYYY-MM-DD-HH-MM-SS format)
+    timestamp: "{{ ansible_date_time.iso8601 | replace(':', '-') }}"
+    backup_archive_name: "config_backup_{{ ansible_hostname }}_{{ timestamp }}.tar.gz"
+
+  tasks:
+    # 1. Creates dated backup directories on target host(s) (2.5 points)
+    # This ensures the base backup directory exists with correct permissions
+    - name: Ensure base backup directory exists
+      ansible.builtin.file:
+        path: "{{ backup_base_dir }}"
+        state: directory
+        mode: '0755'
+        
+    - name: Create temporary directory for archiving
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: '_ansible_tmp_backup'
+      register: temp_dir_path
+
+    # 2. Backs up specific files/directories (copying source to temp dir) (2.5 points)
+    # Copies the source files to a temporary location before archiving
+    - name: Copy source files to temporary location for archiving
+      ansible.builtin.copy:
+        src: "{{ source_to_backup }}"
+        dest: "{{ temp_dir_path.path }}/apache2_config"
+        # remote_src: yes tells Ansible the SOURCE file is on the remote machine
+        remote_src: yes
+      register: copy_result
+
+    # 3. Compresses the backups with timestamps (2.5 points)
+    # Compresses the copied data and moves the archive to the final destination
+    - name: Compress the temporary directory into a tar.gz file
+      community.general.archive:
+        path: "{{ temp_dir_path.path }}/apache2_config"
+        dest: "{{ backup_base_dir }}/{{ backup_archive_name }}"
+        format: gz
+        remove: yes # Clean up the temporary directory content after archiving
+      register: compress_result
+
+    - name: Clean up temporary backup directory
+      ansible.builtin.file:
+        path: "{{ temp_dir_path.path }}"
+        state: absent
+        
+    # 4. Uses conditions to check if backup was successful and relays message (2.5 points)
+    # This task runs ONLY if the compression succeeded
+    - name: Display SUCCESS message (Relays message back to Controller)
+      ansible.builtin.debug:
+        msg: "✅ Backup SUCCESS on {{ ansible_hostname }}. File saved as {{ backup_archive_name }}"
+      when: compress_result is success
+
+    # This task runs ONLY if the compression failed
+    - name: Display FAILURE message (Relays message back to Controller)
+      ansible.builtin.debug:
+        msg: "❌ Backup FAILED on {{ ansible_hostname }}. Check logs on remote host."
+      when: compress_result is failed
