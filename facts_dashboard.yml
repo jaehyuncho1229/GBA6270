@@ -1,0 +1,34 @@
+---
+- name: Deploy System Facts Dashboard
+  hosts: VM3  # Targets the web server host (VM3)
+  become: yes
+  vars:
+    web_root: /var/www/html/ # Default web root for Apache on Ubuntu
+    apache_port: 9090
+    
+  tasks:
+    - name: Ensure Python dependencies are present for URI module check
+      # This ensures the 'uri' module has the required dependencies
+      ansible.builtin.apt:
+        name: python3-apt
+        state: present
+        
+    - name: Generate facts.html using Jinja2 template (Part 2 Requirement)
+      # This task uses the template module to process facts.html.j2
+      ansible.builtin.template:
+        src: facts.html.j2 # Source is the template file we define below
+        dest: "{{ web_root }}/facts.html" # Destination at webserver root
+        owner: root
+        group: root
+        mode: '0644'
+      
+    - name: Confirm dashboard URL is accessible and returns 200
+      ansible.builtin.uri:
+        url: "http://VM3:{{ apache_port }}/facts.html"
+        status_code: 200
+        timeout: 10
+      register: check_url_status
+      
+    - name: Display Dashboard Access URL
+      ansible.builtin.debug:
+        msg: "Dashboard deployed successfully! Access it at http://VM3:{{ apache_port }}/facts.html"
