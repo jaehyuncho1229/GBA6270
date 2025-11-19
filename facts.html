@@ -1,0 +1,52 @@
+    <!-- 1. System Information (2 points) -->
+    <h3>&#x1F4BB; System Information</h3>
+    <div class="fact-group">
+        <div class="fact-item"><span class="fact-label">Hostname:</span> {{ ansible_hostname }}</div>
+        <div class="fact-item"><span class="fact-label">OS Family:</span> {{ ansible_os_family }}</div>
+        <div class="fact-item"><span class="fact-label">Distribution:</span> {{ ansible_distribution }} {{ ansible_distribution_version }}</div>
+        <div class="fact-item"><span class="fact-label">Kernel:</span> {{ ansible_kernel }}</div>
+        <div class="fact-item"><span class="fact-label">Virtualization Role:</span> {{ ansible_virtualization_role }}</div>
+    </div>
+
+    <!-- 2. Hardware (2 points) -->
+    <h3>&#x1F527; Hardware</h3>
+    <div class="fact-group">
+        <div class="fact-item"><span class="fact-label">Architecture:</span> {{ ansible_architecture }}</div>
+        <div class="fact-item"><span class="fact-label">CPU Cores:</span> {{ ansible_processor_vcpus }}</div>
+        <div class="fact-item"><span class="fact-label">Total Memory:</span> {{ (ansible_memtotal_mb / 1024) | round(2) }} GB</div>
+        <div class="fact-item"><span class="fact-label">BIOS Date:</span> {{ ansible_date_time.bios_date }}</div>
+    </div>
+
+    <!-- 3. Network (2 points) -->
+    <h3>&#x1F310; Network</h3>
+    <div class="fact-group">
+        <!-- We use the default IPv4 interface details -->
+        <div class="fact-item"><span class="fact-label">Primary Interface:</span> {{ ansible_default_ipv4.interface }}</div>
+        <div class="fact-item"><span class="fact-label">IP Address:</span> {{ ansible_default_ipv4.address }}</div>
+        <div class="fact-item"><span class="fact-label">MAC Address:</span> {{ ansible_default_ipv4.macaddress }}</div>
+        <div class="fact-item"><span class="fact-label">Gateway:</span> {{ ansible_default_ipv4.gateway }}</div>
+    </div>
+
+    <!-- 4. Time & Date (2 points) -->
+    <h3>&#x23F1; Time & Date</h3>
+    <div class="fact-group">
+        <div class="fact-item"><span class="fact-label">Current Date/Time:</span> {{ ansible_date_time.date }} {{ ansible_date_time.time }}</div>
+        <div class="fact-item"><span class="fact-label">Timezone:</span> {{ ansible_timezone }}</div>
+        <div class="fact-item"><span class="fact-label">Uptime (Days):</span> {{ (ansible_uptime_seconds / 86400) | round(2) }} days</div>
+    </div>
+
+    <!-- 5. Storage (2 points) -->
+    <h3>&#x1F4C7; Storage</h3>
+    <div class="fact-group">
+        <!-- Uses a Jinja2 loop to iterate over mount points and pull details for the root directory ('/') -->
+        {% for mount in ansible_mounts %}
+            {% if mount.mount == '/' %}
+                <div class="fact-item"><span class="fact-label">Root Device:</span> {{ mount.device }}</div>
+                <div class="fact-item"><span class="fact-label">Filesystem Type:</span> {{ mount.fstype }}</div>
+                <div class="fact-item"><span class="fact-label">Root Total Space:</span> {{ (mount.size_total / (1024*1024*1024)) | round(2) }} GB</div>
+            {% endif %}
+        {% endfor %}
+        <!-- Displays size of main disk (often sda) -->
+        <div class="fact-item"><span class="fact-label">Main Disk Size:</span> {{ ansible_devices.sda.size }}</div>
+    </div>
+</div>
